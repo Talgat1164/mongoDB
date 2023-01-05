@@ -1,0 +1,120 @@
+// Создать или использовать DB
+use mongo 
+
+// Добавить один обьект
+db.users.insert({
+  name: "Talgat",
+  age: 22,
+});
+
+// Добавить несколько обьектов
+db.users.insertMany([
+  { name: "Talgat", age: 22 },
+  { name: "Adilet", age: 19 },
+  { name: "Nur", age: 23 },
+]);
+
+// Показать колекцию
+db.users.find();
+
+// Показать обьекты с такими данными
+db.users.find({ age: 22, name: "Talgat" });
+
+// Показать обьекты с такими данными ИЛИ
+db.users.find({ $or: [{ name: "Nur" }, { age: 19 }] });
+
+// Показать обьекты <
+db.users.find({ age: { $lt: 20 } });
+
+// Показать обьекты <=
+db.users.find({ age: { $lte: 19 } });
+
+// Показать обьекты >
+db.users.find({ age: { $gt: 22 } });
+
+// Показать обьекты >=
+db.users.find({ age: { $gte: 23 } });
+
+// Показать обьекты !=
+db.users.find({ age: { $ne: 22 } });
+
+// Сортировка 
+db.users.find().sort({age: 1})
+db.users.find().sort({age: -1})
+
+// Лимит 
+db.users.find().limit(2)
+
+// Изменение =======================================
+// Обновить значение в 1ом Talgat 
+db.users.update(
+  {name: "Talgat"}, 
+  {
+    $set: {
+      name: "ne Talgat", 
+      age: 34
+    }
+  }
+)
+
+// rename - изменяет поле, set - значение
+db.users.updateMany(
+  {}, 
+  {
+    $rename: {
+      name: "fullname"
+    }
+  }
+)
+
+// deleteOne 
+db.users.deleteOne({age: 22})
+
+// bulkWrite - несколько команд в одной 
+
+db.users.bulkWrite([
+  {
+    insertOne: {
+      document: {fullname: "Nastya", age: 18}
+    },
+  },  
+  {  
+    deleteOne: {
+        filter: {fullname: "Talgat"}
+    }
+  }
+])
+
+// Тип связи 1 ко многим 
+
+db.users.update(
+  {fullname: "Talgat"}, 
+  {
+    $set: {
+      posts: [
+        {title: 'javascript', text: 'js top'}, 
+        {title: 'mongo', text: 'mongo top'}, 
+      ]
+    }
+  }
+)
+
+// Показать чисто посты 
+db.users.findOne(
+  {fullname: "Talgat"},
+  {posts: 1}
+)
+
+// Найти по посту
+db.users.find(
+  {
+    posts: {
+      $elemMatch: {
+        title: "javascript"
+      }
+    }
+  }
+)
+
+// Найти по наличию постов
+db.users.find({posts: {$exists: true}})
